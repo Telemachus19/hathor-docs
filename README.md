@@ -12,7 +12,7 @@
 
 > Hathor is a major ancient Egyptian goddess who personified motherhood, joy, love, music, and the sky.
 
-## Project Overview
+## 📘 Project Overview
 
 Hathor is a multi-role game distribution platform designed around three core user groups:
 
@@ -22,7 +22,7 @@ Hathor is a multi-role game distribution platform designed around three core use
 
 The platform supports dual-role accounts. For example, a Game Creator can also use the platform as a Gamer to browse and purchase games.
 
-## Roles and Access
+## 🔑 Roles and Access
 
 | Role         | Access                                                                             |
 | ------------ | ---------------------------------------------------------------------------------- |
@@ -31,9 +31,9 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
 | Game Creator | Gamer access when applicable, plus Developer Dashboard, Create Game, and Edit Game |
 | Admin        | Admin Panel for Users, Developers, Games, and Payments, plus Profile               |
 
-## Information Architecture
+## 🧭 Information Architecture
 
-### Public Area
+### 🌐 Public Area
 
 - Home Page
   - Featured Games
@@ -47,7 +47,7 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
   - Login
   - Register
 
-### Gamer Dashboard
+### 🎮 Gamer Dashboard
 
 - Wishlist
 - Library
@@ -59,7 +59,7 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
   - Checkout
 - Profile
 
-### Developer Dashboard
+### 🛠 Developer Dashboard
 
 - Dashboard
   - Create Game
@@ -69,7 +69,7 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
   - Edit Game
 - Profile
 
-### Admin Panel
+### 🛡 Admin Panel
 
 - Dashboard
   - Users
@@ -78,7 +78,7 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
   - Payments
 - Profile
 
-## Key Product Notes
+## 📝 Key Product Notes
 
 - Profile is role-aware rather than a single flat page; each role should surface only relevant settings and shortcuts.
 - Game Details and Library > Games share the same content structure and should reuse the same component template.
@@ -86,7 +86,7 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
 - Create Game > Upload Your Game is the most complex flow and should be treated as a dedicated product surface.
 - AI appears in two places: personalized recommendations on the Home Page and an assistant on the custom game page.
 
-## Brand Guidelines
+## 🎨 Brand Guidelines
 
 | Color          | Hex     | Usage                                      |
 | -------------- | ------- | ------------------------------------------ |
@@ -95,7 +95,7 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
 | Accent         | #FD7014 | Primary CTA, highlights, and active states |
 | Light          | #EEEEEE | Primary text on dark backgrounds           |
 
-### Reference Images
+### 🖼 Reference Images
 
 ![Color Palette](Color%20Pallete.png)
 
