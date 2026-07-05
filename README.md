@@ -6,11 +6,11 @@
 | Type         | Game Distribution & Developer Platform |
 | Last Updated | July 2026                              |
 
-> Hathor is a major ancient Egyptian goddess who personified motherhood, joy, love, music, and the sky.
-
 <p align="center">
   <img src="Hathor.png" alt="Hathor" width="240" />
 </p>
+
+> Hathor is a major ancient Egyptian goddess who personified motherhood, joy, love, music, and the sky.
 
 ## Project Overview
 
@@ -88,11 +88,11 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
 
 ## Brand Guidelines
 
-| Swatch | Color | Hex | Usage |
-| --- | --- | --- | --- |
-| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#222831;"></span> | Primary Dark | #222831 | Base backgrounds and dark surfaces |
-| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#393E46;"></span> | Secondary Dark | #393E46 | Cards, panels, navbars, and sidebars |
-| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#FD7014;"></span> | Accent | #FD7014 | Primary CTA, highlights, and active states |
-| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#EEEEEE;"></span> | Light | #EEEEEE | Primary text on dark backgrounds |
+| Swatch                                                                                                      | Color          | Hex     | Usage                                      |
+| ----------------------------------------------------------------------------------------------------------- | -------------- | ------- | ------------------------------------------ |
+| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#222831;"></span> | Primary Dark   | #222831 | Base backgrounds and dark surfaces         |
+| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#393E46;"></span> | Secondary Dark | #393E46 | Cards, panels, navbars, and sidebars       |
+| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#FD7014;"></span> | Accent         | #FD7014 | Primary CTA, highlights, and active states |
+| <span style="display:inline-block;width:1rem;height:1rem;border:1px solid #999;background:#EEEEEE;"></span> | Light          | #EEEEEE | Primary text on dark backgrounds           |
 
 Use the dark palette as the foundation, reserve the accent color for high-priority actions and emphasis, and keep typography and spacing consistent across all surfaces.
