@@ -6,9 +6,7 @@
 | Type         | Game Distribution & Developer Platform |
 | Last Updated | July 2026                              |
 
-<p align="center">
-  <img src="Hathor.png" alt="Hathor" width="240" />
-</p>
+![Hathor](Hathor.png)
 
 > Hathor is a major ancient Egyptian goddess who personified motherhood, joy, love, music, and the sky.
 
@@ -88,45 +86,15 @@ The platform supports dual-role accounts. For example, a Game Creator can also u
 
 ## Brand Guidelines
 
-<table>
-  <tr>
-    <td valign="top">
+| Color          | Hex     | Usage                                      |
+| -------------- | ------- | ------------------------------------------ |
+| Primary Dark   | #222831 | Base backgrounds and dark surfaces         |
+| Secondary Dark | #393E46 | Cards, panels, navbars, and sidebars       |
+| Accent         | #FD7014 | Primary CTA, highlights, and active states |
+| Light          | #EEEEEE | Primary text on dark backgrounds           |
 
-        <table>
-          <tr>
-            <th align="left">Color</th>
-            <th align="left">Hex</th>
-            <th align="left">Usage</th>
-          </tr>
-          <tr>
-            <td>Primary Dark</td>
-            <td><code>#222831</code></td>
-            <td>Base backgrounds and dark surfaces</td>
-          </tr>
-          <tr>
-            <td>Secondary Dark</td>
-            <td><code>#393E46</code></td>
-            <td>Cards, panels, navbars, and sidebars</td>
-          </tr>
-          <tr>
-            <td>Accent</td>
-            <td><code>#FD7014</code></td>
-            <td>Primary CTA, highlights, and active states</td>
-          </tr>
-          <tr>
-            <td>Light</td>
-            <td><code>#EEEEEE</code></td>
-            <td>Primary text on dark backgrounds</td>
-          </tr>
-        </table>
-    </td>
-    <td valign="top" align="center">
-      <img src="Color Pallete.png" alt="Color Palette" width="260" />
-      <br /><br />
-      <img src="Hathor.png" alt="Hathor" width="220" />
-    </td>
+### Reference Images
 
-  </tr>
-</table>
+![Color Palette](Color%20Pallete.png)
 
-Use the dark palette as the foundation, reserve the accent color for high-priority actions and emphasis, and keep typography and spacing consistent across all surfaces.
+> Use the dark palette as the foundation, reserve the accent color for high-priority actions and emphasis, and keep typography and spacing consistent across all surfaces.
