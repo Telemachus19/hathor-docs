@@ -6,7 +6,9 @@
 | Type         | Game Distribution & Developer Platform |
 | Last Updated | July 2026                              |
 
-![Hathor](Hathor.png)
+<p align="center">
+  <img src="Hathor.png" alt="Hathor" width="240" />
+</p>
 
 > Hathor is a major ancient Egyptian goddess who personified motherhood, joy, love, music, and the sky.
 
