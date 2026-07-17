@@ -1,0 +1,158 @@
+openapi: 3.1.0
+info:
+  title: Hathor Internal Service API
+  version: 1.0.0-draft
+  description: Private service-to-service interfaces. They are unreachable from public gateway routes.
+servers:
+  - url: http://catalog-service:5002/internal/v1
+    description: Private Compose network
+security:
+  - serviceBearer: []
+paths:
+  /auth/service-tokens:
+    post:
+      operationId: issueServiceToken
+      summary: Issue a five-minute, scope-bound internal token to a registered service client.
+      servers:
+        - url: http://auth-service:5001/internal/v1
+      security: [{ serviceClientCredential: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [audience]
+              properties:
+                audience:
+                  type: string
+                  enum: [catalog-service, library-service]
+      responses:
+        '200':
+          description: Short-lived token with scopes statically assigned to the authenticated service client.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accessToken, expiresIn]
+                properties:
+                  accessToken: { type: string }
+                  expiresIn: { type: integer, const: 300 }
+        '401': { description: Invalid service client credential }
+        '403': { description: Caller is not allowed to obtain a token for this audience }
+  /catalog/quotes:
+    post:
+      operationId: quoteCatalogItems
+      summary: Commerce obtains authoritative sellability and price snapshots.
+      security: [{ serviceBearer: [catalog.quote.read] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [gameIds]
+              properties:
+                gameIds:
+                  type: array
+                  minItems: 1
+                  maxItems: 50
+                  uniqueItems: true
+                  items: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Immutable quote candidates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [quoteId, expiresAt, items]
+                properties:
+                  quoteId: { type: string, format: uuid }
+                  expiresAt: { type: string, format: date-time }
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [gameId, title, sellable, priceEgp, currency, priceVersion]
+                      properties:
+                        gameId: { type: string, format: uuid }
+                        title: { type: string }
+                        sellable: { type: boolean }
+                        priceEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+                        currency: { type: string, const: EGP }
+                        priceVersion: { type: string }
+        '401': { description: Invalid service credential }
+        '403': { description: Missing audience or scope }
+  /games/{gameId}/published-build:
+    get:
+      operationId: getPublishedBuild
+      summary: Library resolves the immutable published build after ownership verification.
+      security: [{ serviceBearer: [catalog.build.read] }]
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Published immutable build
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [buildId, gameId, objectKey, sha256, state]
+                properties:
+                  buildId: { type: string, format: uuid }
+                  gameId: { type: string, format: uuid }
+                  objectKey: { type: string }
+                  sha256: { type: string, pattern: '^[A-Fa-f0-9]{64}$' }
+                  state: { type: string, const: published }
+        '404': { description: No published build }
+  /library/ownership:
+    post:
+      operationId: checkOwnership
+      summary: Commerce rejects already-owned games before initiating payment.
+      servers:
+        - url: http://library-service:5004/internal/v1
+      security: [{ serviceBearer: [library.ownership.read] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, gameIds]
+              properties:
+                userId: { type: string, format: uuid }
+                gameIds:
+                  type: array
+                  minItems: 1
+                  maxItems: 50
+                  uniqueItems: true
+                  items: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Ownership snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ownedGameIds]
+                properties:
+                  ownedGameIds:
+                    type: array
+                    items: { type: string, format: uuid }
+        '401': { description: Invalid service credential }
+        '403': { description: Missing audience or scope }
+components:
+  securitySchemes:
+    serviceBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Internal RS256 JWT
+    serviceClientCredential:
+      type: apiKey
+      in: header
+      name: X-Hathor-Service-Credential

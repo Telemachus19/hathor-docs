@@ -1,0 +1,548 @@
+openapi: 3.1.0
+info:
+  title: Hathor Public API
+  version: 1.0.0-draft
+  description: |
+    Contract for the August 30 vertical slice. All authenticated identity derives from
+    a verified bearer token. Monetary values are decimal strings in EGP.
+servers:
+  - url: https://api.hathor.example/api/v1
+    description: Public staging placeholder
+  - url: http://localhost:5000/api/v1
+    description: Local gateway
+tags:
+  - name: User
+  - name: Store
+  - name: Cart
+  - name: Transactions
+  - name: Inventory
+  - name: Creator
+  - name: Admin
+paths:
+  /user/register:
+    post:
+      tags: [User]
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201': { description: Gamer account created, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /user/login:
+    post:
+      tags: [User]
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Access token and user. The refresh token is set as an HttpOnly cookie.
+          content: { application/json: { schema: { $ref: '#/components/schemas/AuthSession' } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /user/refresh:
+    post:
+      tags: [User]
+      operationId: refreshSession
+      security: []
+      responses:
+        '200': { description: Rotated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthSession' } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /user/logout:
+    post:
+      tags: [User]
+      operationId: logoutUser
+      security: []
+      responses:
+        '204': { description: Refresh-token family revoked }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /user/me:
+    get:
+      tags: [User]
+      operationId: getCurrentUser
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Current user, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /store/apps:
+    get:
+      tags: [Store]
+      operationId: listGames
+      security: []
+      parameters:
+        - { name: query, in: query, schema: { type: string, maxLength: 100 } }
+        - { name: tag, in: query, schema: { type: string, maxLength: 50 } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+      responses:
+        '200': { description: Published games, content: { application/json: { schema: { $ref: '#/components/schemas/GamePage' } } } }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+  /store/apps/{slug}:
+    get:
+      tags: [Store]
+      operationId: getGameBySlug
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/Slug' }
+      responses:
+        '200': { description: Published game, content: { application/json: { schema: { $ref: '#/components/schemas/Game' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /cart:
+    get:
+      tags: [Cart]
+      operationId: getCart
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Caller cart, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /cart/{gameId}:
+    post:
+      tags: [Cart]
+      operationId: addCartItem
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { description: Updated cart, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Cart]
+      operationId: removeCartItem
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { description: Updated cart, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /txn/init:
+    post:
+      tags: [Transactions]
+      operationId: initializeTransaction
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InitializeTransactionRequest' }
+      responses:
+        '201': { description: Payment-pending order, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '200': { description: Idempotent replay of an existing order, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/DependencyUnavailable' }
+  /txn/{orderId}:
+    get:
+      tags: [Transactions]
+      operationId: getOrder
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/OrderId' }]
+      responses:
+        '200': { description: Caller order, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /txn/{orderId}/simulate-payment:
+    post:
+      tags: [Transactions]
+      operationId: simulatePayment
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/OrderId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SimulatePaymentRequest' }
+      responses:
+        '202': { description: A demo-provider callback was scheduled for the caller's pending simulator order }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /txn/webhooks/simulator:
+    post:
+      tags: [Transactions]
+      operationId: receiveSimulatorWebhook
+      summary: Private provider-shaped callback routed through the gateway
+      security: []
+      parameters:
+        - name: X-Hathor-Signature
+          in: header
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SimulatorWebhook' }
+      responses:
+        '204': { description: Valid callback processed or safely deduplicated }
+        '401': { description: Invalid signature }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /inventory/apps:
+    get:
+      tags: [Inventory]
+      operationId: listLibraryGames
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Caller licenses, content: { application/json: { schema: { $ref: '#/components/schemas/Library' } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /inventory/check/{gameId}:
+    get:
+      tags: [Inventory]
+      operationId: checkLibraryOwnership
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200':
+          description: Caller ownership result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [gameId, owned]
+                properties:
+                  gameId: { $ref: '#/components/schemas/Uuid' }
+                  owned: { type: boolean }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /inventory/download-token:
+    post:
+      tags: [Inventory]
+      operationId: issueDownloadToken
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DownloadTokenRequest' }
+      responses:
+        '200': { description: Exact-object temporary download access, content: { application/json: { schema: { $ref: '#/components/schemas/DownloadToken' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /creator/games:
+    get:
+      tags: [Creator]
+      operationId: listCreatorGames
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Caller-owned games, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Game' } } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    post:
+      tags: [Creator]
+      operationId: createCreatorGame
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGameRequest' }
+      responses:
+        '201': { description: Draft game, content: { application/json: { schema: { $ref: '#/components/schemas/Game' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /creator/games/{gameId}/theme:
+    put:
+      tags: [Creator]
+      operationId: updateCreatorTheme
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ThemeDocument' }
+      responses:
+        '200': { description: Validated draft theme saved }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /creator/games/{gameId}/ai/theme-proposals:
+    post:
+      tags: [Creator]
+      operationId: proposeAiTheme
+      summary: Optional provider-backed, creator-owned theme suggestion. It never saves or publishes a revision.
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiThemeProposalRequest' }
+      responses:
+        '200': { description: Schema-valid proposal for preview and explicit creator acceptance, content: { application/json: { schema: { $ref: '#/components/schemas/AiThemeProposal' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/DependencyUnavailable' }
+  /admin/users/{userId}/roles:
+    post:
+      tags: [Admin]
+      operationId: grantRole
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/UserId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleChangeRequest' }
+      responses:
+        '204': { description: Role updated and audit record written }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/games/{gameId}/status:
+    patch:
+      tags: [Admin]
+      operationId: moderateGameStatus
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GameStatusChangeRequest' }
+      responses:
+        '204': { description: Allowed status transition recorded }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/transactions:
+    get:
+      tags: [Admin]
+      operationId: listTransactions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200': { description: Paginated redacted financial audit records, content: { application/json: { schema: { $ref: '#/components/schemas/OrderPage' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    GameId: { name: gameId, in: path, required: true, schema: { $ref: '#/components/schemas/Uuid' } }
+    OrderId: { name: orderId, in: path, required: true, schema: { $ref: '#/components/schemas/Uuid' } }
+    UserId: { name: userId, in: path, required: true, schema: { $ref: '#/components/schemas/Uuid' } }
+    Slug: { name: slug, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' } }
+  responses:
+    Unauthenticated: { description: "Missing, invalid, expired, or revoked credentials", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden: { description: Authenticated caller lacks required role or object ownership, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    NotFound: { description: Resource not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Conflict: { description: "Invalid state, duplicate request, already-owned game, or disallowed transition", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ValidationFailed: { description: Invalid request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    DependencyUnavailable: { description: Required internal service unavailable, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+  schemas:
+    Uuid: { type: string, format: uuid }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, correlationId]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            correlationId: { $ref: '#/components/schemas/Uuid' }
+    RegisterRequest:
+      type: object
+      required: [email, password, displayName, captchaToken]
+      properties:
+        email: { type: string, format: email, maxLength: 255 }
+        password: { type: string, minLength: 12, maxLength: 128 }
+        displayName: { type: string, minLength: 3, maxLength: 100 }
+        captchaToken: { type: string, minLength: 1, maxLength: 4096, description: One-time Cloudflare Turnstile token }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 1, maxLength: 128 }
+    User:
+      type: object
+      required: [id, email, displayName, roles]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        email: { type: string, format: email }
+        displayName: { type: string }
+        roles: { type: array, items: { type: string, enum: [gamer, creator, admin] } }
+    AuthSession:
+      type: object
+      required: [accessToken, user]
+      properties:
+        accessToken: { type: string, description: Store only in browser memory }
+        user: { $ref: '#/components/schemas/User' }
+    Game:
+      type: object
+      required: [id, slug, title, priceEgp, currency, status, theme]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        slug: { type: string }
+        title: { type: string }
+        shortDescription: { type: string }
+        priceEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        currency: { type: string, const: EGP }
+        status: { type: string, enum: [draft, pending_review, published, rejected, suspended] }
+        theme: { $ref: '#/components/schemas/ThemeDocument' }
+    GamePage:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Game' } }
+        nextCursor: { type: [string, 'null'] }
+    ThemeDocument:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, palette, typography, layout, contentOrder]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        palette:
+          type: object
+          additionalProperties: false
+          required: [background, surface, text, accent]
+          properties:
+            background: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+            surface: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+            text: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+            accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        typography:
+          type: object
+          additionalProperties: false
+          required: [headingFont, bodyFont, headingScale]
+          properties:
+            headingFont: { type: string, enum: [inter, cairo] }
+            bodyFont: { type: string, enum: [inter, cairo] }
+            headingScale: { type: string, enum: [normal, large] }
+        layout:
+          type: object
+          additionalProperties: false
+          required: [template, heroAlignment, cardStyle]
+          properties:
+            template: { type: string, enum: [standard, cinematic, compact] }
+            heroAlignment: { type: string, enum: [left, center] }
+            cardStyle: { type: string, enum: [flat, elevated] }
+            showTrailer: { type: boolean, default: true }
+        contentOrder:
+          type: array
+          uniqueItems: true
+          maxItems: 4
+          items: { type: string, enum: [hero, description, screenshots, systemRequirements] }
+    Cart:
+      type: object
+      required: [version, items]
+      properties:
+        version: { type: integer, minimum: 1 }
+        items: { type: array, items: { type: object, required: [gameId], properties: { gameId: { $ref: '#/components/schemas/Uuid' } } } }
+    InitializeTransactionRequest:
+      type: object
+      required: [paymentMethod, cartVersion]
+      properties:
+        paymentMethod: { type: string, enum: [sim_fawry, sim_vodafone_cash, sim_instapay] }
+        cartVersion: { type: integer, minimum: 1 }
+    Order:
+      type: object
+      required: [id, status, paymentMethod, totalAmountEgp, currency, expiresAt]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        status: { type: string, enum: [payment_pending, payment_confirmed, fulfillment_pending, fulfilled, expired, payment_failed, cancelled, revoked] }
+        paymentMethod: { type: string, enum: [sim_fawry, sim_vodafone_cash, sim_instapay] }
+        paymentReference: { type: string }
+        totalAmountEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        currency: { type: string, const: EGP }
+        expiresAt: { type: string, format: date-time }
+    SimulatorWebhook:
+      type: object
+      required: [eventId, occurredAt, merchantId, orderReference, amountEgp, currency, status]
+      properties:
+        eventId: { $ref: '#/components/schemas/Uuid' }
+        occurredAt: { type: string, format: date-time }
+        merchantId: { type: string }
+        orderReference: { type: string }
+        amountEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        currency: { type: string, const: EGP }
+        status: { type: string, enum: [paid, failed] }
+    SimulatePaymentRequest:
+      type: object
+      additionalProperties: false
+      required: [outcome]
+      properties:
+        outcome: { type: string, enum: [paid, failed] }
+    Library:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { type: object, required: [gameId, acquiredAt], properties: { gameId: { $ref: '#/components/schemas/Uuid' }, acquiredAt: { type: string, format: date-time } } } }
+    DownloadTokenRequest:
+      type: object
+      required: [gameId]
+      properties:
+        gameId: { $ref: '#/components/schemas/Uuid' }
+    DownloadToken:
+      type: object
+      required: [url, expiresAt, sha256]
+      properties:
+        url: { type: string, format: uri }
+        expiresAt: { type: string, format: date-time }
+        sha256: { type: string, pattern: '^[A-Fa-f0-9]{64}$' }
+    CreateGameRequest:
+      type: object
+      required: [title, slug, shortDescription, priceEgp]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 255 }
+        slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' }
+        shortDescription: { type: string, minLength: 1, maxLength: 500 }
+        priceEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+    AiThemeProposalRequest:
+      type: object
+      additionalProperties: false
+      required: [prompt, currentTheme]
+      properties:
+        prompt: { type: string, minLength: 1, maxLength: 1000 }
+        currentTheme: { $ref: '#/components/schemas/ThemeDocument' }
+    AiThemeProposal:
+      type: object
+      additionalProperties: false
+      required: [summary, patch]
+      properties:
+        summary: { type: string, maxLength: 500 }
+        patch:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            additionalProperties: false
+            required: [op, path, value]
+            properties:
+              op: { type: string, const: replace }
+              path:
+                type: string
+                enum:
+                  - /palette/background
+                  - /palette/surface
+                  - /palette/text
+                  - /palette/accent
+                  - /typography/headingFont
+                  - /typography/bodyFont
+                  - /typography/headingScale
+                  - /layout/template
+                  - /layout/heroAlignment
+                  - /layout/cardStyle
+                  - /layout/showTrailer
+                  - /contentOrder
+              value: {}
+    RoleChangeRequest:
+      type: object
+      required: [role, action]
+      properties:
+        role: { type: string, enum: [creator, admin] }
+        action: { type: string, enum: [grant, revoke] }
+    GameStatusChangeRequest:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [published, rejected, suspended] }
+        reason: { type: string, maxLength: 500 }
+    OrderPage:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Order' } }
+        nextCursor: { type: [string, 'null'] }

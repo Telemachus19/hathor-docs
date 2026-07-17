@@ -1,0 +1,112 @@
+asyncapi: 2.6.0
+id: urn:hathor:domain-events
+defaultContentType: application/json
+info:
+  title: Hathor Domain Events
+  version: 1.0.0-draft
+  description: Durable RabbitMQ event contracts for the August vertical slice.
+  contact:
+    name: Hathor Planning
+    url: https://hathor.example
+    email: planning@hathor.example
+  license:
+    name: UNLICENSED
+tags:
+  - name: commerce
+  - name: library
+servers:
+  staging:
+    url: rabbitmq:5672
+    protocol: amqp
+    description: Private RabbitMQ virtual host only
+channels:
+  hathor.domain.events/commerce.order.paid.v1:
+    publish:
+      operationId: publishOrderPaid
+      message: { $ref: '#/components/messages/OrderPaid' }
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: hathor.domain.events
+          type: topic
+          durable: true
+        bindingVersion: 0.2.0
+  hathor.domain.events/library.entitlement.granted.v1:
+    publish:
+      operationId: publishEntitlementGranted
+      message: { $ref: '#/components/messages/EntitlementGranted' }
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: hathor.domain.events
+          type: topic
+          durable: true
+        bindingVersion: 0.2.0
+components:
+  messages:
+    OrderPaid:
+      name: OrderPaid
+      messageId: commerce.order.paid.v1
+      title: Commerce order paid
+      payload: { $ref: '#/components/schemas/OrderPaidEvent' }
+    EntitlementGranted:
+      name: EntitlementGranted
+      messageId: library.entitlement.granted.v1
+      title: Library entitlement granted
+      payload: { $ref: '#/components/schemas/EntitlementGrantedEvent' }
+  schemas:
+    EventEnvelope:
+      type: object
+      required: [eventId, eventType, schemaVersion, occurredAt, correlationId, producer]
+      properties:
+        eventId: { type: string, format: uuid }
+        eventType: { type: string }
+        schemaVersion: { type: integer, const: 1 }
+        occurredAt: { type: string, format: date-time }
+        correlationId: { type: string, format: uuid }
+        producer: { type: string }
+    OrderPaidEvent:
+      allOf:
+        - { $ref: '#/components/schemas/EventEnvelope' }
+        - type: object
+          required: [payload]
+          properties:
+            eventType: { const: commerce.order.paid.v1 }
+            producer: { const: commerce-service }
+            payload:
+              type: object
+              required: [orderId, userId, items]
+              properties:
+                orderId: { type: string, format: uuid }
+                userId: { type: string, format: uuid }
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [gameId, titleSnapshot, pricePaidEgp, currency]
+                    properties:
+                      gameId: { type: string, format: uuid }
+                      titleSnapshot: { type: string }
+                      pricePaidEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+                      currency: { const: EGP }
+    EntitlementGrantedEvent:
+      allOf:
+        - { $ref: '#/components/schemas/EventEnvelope' }
+        - type: object
+          required: [payload]
+          properties:
+            eventType: { const: library.entitlement.granted.v1 }
+            producer: { const: library-service }
+            payload:
+              type: object
+              required: [orderId, userId, gameIds]
+              properties:
+                orderId: { type: string, format: uuid }
+                userId: { type: string, format: uuid }
+                gameIds:
+                  type: array
+                  minItems: 1
+                  items: { type: string, format: uuid }
