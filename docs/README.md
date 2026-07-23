@@ -1,6 +1,6 @@
 # Hathor Canonical Documentation
 
-This directory is the implementation source of truth for Hathor's August 30, 2026 vertical slice. The root-level planning documents remain valuable background and issue-source material, but these documents resolve their conflicting decisions.
+This directory is the implementation source of truth for Hathor's August 15, 2026 vertical slice. The root-level planning documents remain valuable background and issue-source material, but these documents resolve their conflicting decisions.
 
 ## Canonical Documents
 
@@ -18,7 +18,7 @@ This directory is the implementation source of truth for Hathor's August 30, 202
 | `reliability/payment-entitlement.md` | Order state machine, outbox/inbox, RabbitMQ, reconciliation, and recovery |
 | `reliability/payment-entitlement-sequence.md` | End-to-end purchase sequence and failure behavior |
 | `architecture/ai-designer.md` | Safe AI integration for the Store Page Designer |
-| `delivery/implementation-roadmap.md` | Team allocation, August 30 schedule, scope, and release gates |
+| `delivery/implementation-roadmap.md` | Team allocation, August 15 schedule, scope, and release gates |
 | `delivery/architecture-freeze-checklist.md` | Approved freeze decisions and contract-approval gate |
 | `delivery/issue-dependencies.md` | Critical-path dependency graph and team allocation |
 | `../GitHub_Projects_Fullstack_Plan.md` | GitHub Projects V2 board source for full-stack delivery |

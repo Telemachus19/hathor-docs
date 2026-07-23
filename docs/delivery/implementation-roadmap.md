@@ -1,4 +1,4 @@
-# Implementation Roadmap To August 30, 2026
+# Implementation Roadmap To August 15, 2026
 
 ## Release Scope
 
@@ -11,24 +11,25 @@ The release demonstrates a complete microservice vertical slice:
 5. RabbitMQ outbox/inbox entitlement grant.
 6. Library list and authorized download of a seeded immutable build.
 7. Creator draft/theme editing and admin moderation/transaction audit.
-8. Local Docker Compose demonstration, with public staging deployment after VPS access is available.
+8. Constrained AI designer proposals and cached non-personalized catalog recommendations with deterministic fallback.
+9. Local Docker Compose demonstration with no public deployment requirement.
 
-Deferred: live payments, creator build uploads, chunking/delta patching, arbitrary CSS, AI buyer assistants, recommendations, and high-availability scaling.
+Deferred: live payments, creator build uploads, chunking/delta patching, arbitrary CSS, AI buyer assistants, behavioral personalization, and high-availability scaling.
 
 ## Team Ownership
 
 | Engineer | Primary ownership |
 | --- | --- |
-| Engineer 1 | Infrastructure, Compose, staging, gateway, observability |
+| Engineer 1 | Infrastructure, Compose, gateway, observability, backup/restore |
 | Engineer 2 | Auth, commerce, payment simulator, outbox |
-| Engineer 3 | Catalog, creator ownership, seeded build metadata, library consumer |
-| Engineer 4 | Web application, integration, checkout/library/creator/admin user flows |
+| Engineer 3 | Catalog, creator ownership, seeded build metadata, library consumer, AI provider/cache |
+| Engineer 4 | Web application, integration, checkout/library/creator/admin/AI user flows |
 
 Every owner writes tests and updates contracts for their work. Another service owner reviews cross-service changes.
 
 ## Schedule
 
-### July 15-19: Architecture Freeze
+### July 23-24: Architecture Freeze
 
 - Consolidate canonical documentation and resolve all conflicting decisions.
 - Approve OpenAPI, internal API, AsyncAPI, data, security, reliability, and AI designer contracts; select and pin OpenAPI/AsyncAPI validation tools for CI.
@@ -36,7 +37,7 @@ Every owner writes tests and updates contracts for their work. Another service o
 
 **Exit:** no unresolved transport, ownership, auth, payment, or route ambiguity.
 
-### July 20-26: Local Platform, Gateway, And Auth Baseline
+### July 25-28: Local Platform, Gateway, And Auth Baseline
 
 - Create monorepo applications and isolated service database topology.
 - Implement health/readiness, secret injection, structured logging, and correlation IDs.
@@ -46,7 +47,7 @@ Every owner writes tests and updates contracts for their work. Another service o
 
 **Exit:** `register -> login -> gateway-authenticated /me -> browse seeded catalog` works in a clean local Compose environment.
 
-### July 27-August 2: Catalog Quotes, Themes, Carts, And Pending Orders
+### July 29-August 1: Catalog Quotes, Themes, Carts, And Pending Orders
 
 - Implement theme schema, creator ownership checks, game status transition rules, draft revisions, and the optional provider-adapter AI theme proposal flow.
 - Implement catalog quote internal API and immutable checkout snapshots.
@@ -55,7 +56,7 @@ Every owner writes tests and updates contracts for their work. Another service o
 
 **Exit:** an authenticated gamer can create exactly one valid `payment_pending` order from a server quote.
 
-### August 3-9: Payment Simulator, Outbox, RabbitMQ, And Licenses
+### August 2-6: Payment Simulator, Outbox, RabbitMQ, And Licenses
 
 - Implement simulator provider adapter, raw-body HMAC verification, payment events, and order transitions.
 - Implement RabbitMQ topology, outbox relay, retry/DLQ, and monitoring.
@@ -64,37 +65,38 @@ Every owner writes tests and updates contracts for their work. Another service o
 
 **Exit:** verified simulated payment grants exactly one entitlement after retries or consumer restarts.
 
-### August 10-16: Seeded Build Download, Creator, Admin, And VPS Provisioning
+### August 7-10: Seeded Build Download, Creator, Admin, And AI
 
 - Seed immutable private Cloudflare R2 build artifact and manifest; record SHA-256 and build state.
 - Implement library download authorization and client integrity verification.
 - Implement creator theme editor and admin moderation/transaction audit interfaces.
+- Implement the bounded AI Designer provider adapter with validated JSON Patch preview/acceptance flow.
+- Implement a catalog-owned cached recommendation endpoint using approved catalog metadata, asynchronous refresh, and deterministic curated fallback. Do not add a recommendation service or browse-time LLM call.
 - Add authorization/IDOR/security tests.
-- When hosting becomes available, provision the VPS, domain/TLS, private Docker networks, deployment secrets, Cloudflare R2 credentials, and off-host backup destination.
 
-**Exit:** only an entitled user can download a published seeded build; creator/admin boundaries are enforced. If VPS access is available, the same tested Compose images run on staging.
+**Exit:** only an entitled user can download a published seeded build; creator/admin boundaries are enforced; AI proposals and recommendation fallback work locally.
 
-### August 17-23: Integration, VPS Deployment, And Failure Recovery
+### August 11-13: Local Integration And Failure Recovery
 
-- Run contract, integration, and E2E tests through the local Compose topology. Run the same suite on public staging as soon as VPS access is available.
+- Run contract, integration, and E2E tests through the local Compose topology.
 - Exercise broker outage, outbox recovery, duplicate event, DLQ replay, expired order, and key-rotation scenarios.
 - Implement reconciliation job and runbooks.
 - Add Memcached only if catalog correctness and invalidation tests are already green.
 
-**Exit:** payment-to-entitlement recovery paths are exercised and all release-blocking tests pass locally; staging deployment is validated if hosting is available.
+**Exit:** payment-to-entitlement recovery paths are exercised and all release-blocking tests pass locally.
 
-### August 24-30: Release Hardening And Demo
+### August 14-15: Release Hardening And Demo
 
-- Freeze features on August 24.
+- Freeze features on August 14.
 - Fix only release-blocking defects.
-- Verify backup/restore, clean local Compose startup, staging deployment, and seeded demo accounts/data.
+- Verify backup/restore, clean local Compose startup, and seeded demo accounts/data.
 - Rehearse the complete demo and failure-recovery walkthrough.
 
-**Exit:** all release criteria pass on local Compose. If hosting is provisioned by mid-August as planned, the same criteria also pass on public staging before release.
+**Exit:** all release criteria pass on local Compose.
 
 ## Release Criteria
 
-1. Local Compose exposes only web/gateway by default. In staging, only gateway/web are public.
+1. Local Compose exposes only web/gateway by default.
 2. All services independently verify JWTs and enforce ownership/roles.
 3. Checkout never trusts browser pricing or totals.
 4. Payment callbacks are raw-body verified, replay-safe, and idempotent.

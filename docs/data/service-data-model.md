@@ -20,6 +20,8 @@ Each service owns its schema and migrations. All service databases use UTC `TIME
 
 `theme_revisions` stores the creator-owned validated theme document, creator/AI origin metadata, parent revision, acceptance timestamp, and draft status. AI proposals are not persisted as active revisions until the creator explicitly accepts them.
 
+`catalog_recommendation_cache` stores bounded, non-personalized recommendation sets keyed by optional source game context, ranked published game IDs, short explainable reasons, source (`cached` or `curated_fallback`), and refresh timestamp. It contains catalog metadata only and does not store payment, entitlement, account, or behavioral-profile data.
+
 `builds` stores game ID, semantic version, platform, private immutable object key, manifest SHA-256, state, creation/publish/revocation timestamps, and creator/administrator actor IDs. A published game references one explicit published build for the seeded MVP.
 
 ## Commerce Service

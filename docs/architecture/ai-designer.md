@@ -22,6 +22,14 @@ Creator prompt
 
 The AI cannot publish, suspend, price, upload, download, authenticate, grant licenses, process payments, or access another creator's game.
 
+## August Recommendation Capability
+
+The August release keeps recommendations inside the catalog domain. It is not a new microservice and is not behavioral personalization. The catalog service asynchronously refreshes a bounded local cache from approved seeded game metadata such as tags, price band, publication state, and safe AI-generated catalog summaries when available.
+
+`GET /api/v1/store/recommendations` returns ranked published games, a short explainable reason, and a deterministic curated fallback. Storefront browsing reads the cached result and never waits for an LLM call. The recommendation path must not receive payment history, entitlement records, roles, emails, refresh tokens, or direct access to another service database.
+
+Cold-start, provider outage, invalid provider output, empty catalog, and cache miss states return the curated fallback. Behavioral profiling, cross-service personalization, a recommendation microservice, and buyer-facing AI chat remain deferred.
+
 ## Theme DSL
 
 The designer stores a versioned theme document containing only allowlisted values:

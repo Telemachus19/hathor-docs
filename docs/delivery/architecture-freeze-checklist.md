@@ -6,7 +6,7 @@
 - [x] Four physical local PostgreSQL containers and least-privilege service users.
 - [x] RabbitMQ only for durable fulfillment events; Redis Pub/Sub excluded.
 - [x] Commerce transactional outbox and library inbox/idempotent consumer.
-- [x] Local Compose is the initial deployment target; one VPS, Caddy TLS reverse proxy, and private networks are the staging target when hosting is available in mid-August.
+- [x] Local Compose is the August delivery target. VPS, Caddy, and public staging are deferred until hosting is budgeted.
 - [x] Auth-issued five-minute RS256 scoped service tokens for internal HTTP calls.
 - [x] One-time secret-gated initial admin bootstrap; audited admin role workflow afterward.
 - [x] Three branded payment simulator flows through one secure provider callback contract.

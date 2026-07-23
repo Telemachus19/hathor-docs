@@ -2,7 +2,7 @@
 
 ## Target And Timing
 
-Hathor is implemented and verified locally first using the same Docker Compose topology described here. Public staging runs on one hardened VPS with Docker Compose once hosting is available, targeted for mid-August. This is a release deployment for the August demo, not a high-availability production topology.
+Hathor is implemented and verified locally first using the same Docker Compose topology described here. VPS/public staging is deferred from the August release because hosting is not budgeted. This document remains the future deployment design, not an August delivery requirement.
 
 Local Compose is the required source of truth for service networking, service discovery, environment variables, migrations, health checks, and the payment-to-entitlement integration suite. The VPS deployment changes only environment-specific values such as domain, TLS, secrets, persistent volumes, firewall rules, and Cloudflare credentials.
 

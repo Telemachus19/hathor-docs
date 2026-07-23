@@ -3,7 +3,7 @@ info:
   title: Hathor Public API
   version: 1.0.0-draft
   description: |
-    Contract for the August 30 vertical slice. All authenticated identity derives from
+    Contract for the August 15 vertical slice. All authenticated identity derives from
     a verified bearer token. Monetary values are decimal strings in EGP.
 servers:
   - url: https://api.hathor.example/api/v1
@@ -95,6 +95,17 @@ paths:
       responses:
         '200': { description: Published game, content: { application/json: { schema: { $ref: '#/components/schemas/Game' } } } }
         '404': { $ref: '#/components/responses/NotFound' }
+  /store/recommendations:
+    get:
+      tags: [Store]
+      operationId: listCatalogRecommendations
+      summary: Return cached non-personalized published-game recommendations with a curated fallback.
+      security: []
+      parameters:
+        - { name: gameId, in: query, schema: { $ref: '#/components/schemas/Uuid' }, description: Optional catalog context only; no user profiling is performed. }
+      responses:
+        '200': { description: Cached recommendations or deterministic fallback, content: { application/json: { schema: { $ref: '#/components/schemas/RecommendationPage' } } } }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
   /cart:
     get:
       tags: [Cart]
@@ -388,6 +399,20 @@ components:
       properties:
         items: { type: array, items: { $ref: '#/components/schemas/Game' } }
         nextCursor: { type: [string, 'null'] }
+    RecommendationPage:
+      type: object
+      required: [items, source]
+      properties:
+        source: { type: string, enum: [cached, curated_fallback] }
+        items:
+          type: array
+          maxItems: 12
+          items:
+            type: object
+            required: [game, reason]
+            properties:
+              game: { $ref: '#/components/schemas/Game' }
+              reason: { type: string, maxLength: 200 }
     ThemeDocument:
       type: object
       additionalProperties: false

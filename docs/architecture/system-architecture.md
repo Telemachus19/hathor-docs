@@ -2,9 +2,9 @@
 
 ## Scope
 
-Hathor's August 30, 2026 release is a distributed vertical slice: a gamer can authenticate, browse seeded games, create an order, complete a secure simulator payment, receive an entitlement, and download one seeded immutable build. A creator can edit a constrained store theme for an owned draft. An admin can moderate games and inspect transaction records.
+Hathor's August 15, 2026 release is a distributed vertical slice: a gamer can authenticate, browse seeded games, create an order, complete a secure simulator payment, receive an entitlement, and download one seeded immutable build. A creator can edit a constrained store theme for an owned draft. An admin can moderate games and inspect transaction records. The local catalog also demonstrates constrained AI design proposals and cached non-personalized recommendations with deterministic fallback.
 
-Live payment providers, creator build uploads, delta patching, AI buyer assistants, recommendations, and arbitrary CSS are outside this release.
+Live payment providers, creator build uploads, delta patching, AI buyer assistants, behavioral personalization, and arbitrary CSS are outside this release.
 
 ## Service Ownership
 
@@ -73,7 +73,7 @@ Cross-service identifiers are opaque UUIDs. There are no cross-database foreign 
 
 Internal calls use bounded timeouts and fail closed for checkout, ownership, and download decisions. The caller returns a retryable unavailable response rather than guessing data during a dependency outage.
 
-When hosting is available in mid-August, public staging uses one hardened VPS with Docker Compose and a TLS reverse proxy. See `vps-deployment.md` for firewall, service-token, persistence, backup, and rollback requirements.
+Public staging is deferred from the August release. See `vps-deployment.md` for the future firewall, service-token, persistence, backup, and rollback design.
 
 ## Catalog And Build Lifecycle
 

@@ -11,12 +11,12 @@ Architecture freeze
   -> Cart + idempotent order initialization
   -> Simulator callback + commerce outbox
   -> RabbitMQ library inbox + entitlement grant
-  -> Seeded build metadata + download authorization
+  -> Seeded build metadata + download authorization + bounded AI features
   -> End-to-end failure tests, reconciliation, restore drill
   -> Release hardening
 ```
 
-The creator designer and AI proposal flow can proceed in parallel after auth, catalog ownership, and theme schema validation exist. They must not delay the commerce-to-entitlement critical path.
+The creator designer and AI proposal flow can proceed in parallel after auth, catalog ownership, and theme schema validation exist. Cached recommendations begin only after catalog metadata is stable. Neither AI capability may delay the commerce-to-entitlement critical path.
 
 ## Milestone Dependencies
 
@@ -33,18 +33,19 @@ The creator designer and AI proposal flow can proceed in parallel after auth, ca
 | Library inbox/consumer | Event contract, library schema | Fulfillment completion and library UI |
 | Seeded build/download token | Catalog build record, entitlement check, storage setup | Download demonstration |
 | Admin role workflow | Auth session authorization version and audit schema | Creator onboarding/admin controls |
-| AI designer proposal | Catalog theme schema and creator ownership | Optional designer copilot demonstration |
-| Reconciliation/DLQ/restore | Outbox/inbox, backups, staging | Release approval |
+| AI designer proposal | Catalog theme schema and creator ownership | Constrained designer copilot demonstration |
+| Cached recommendations | Stable catalog metadata and provider adapter | Recommendation UI and local AI acceptance |
+| Reconciliation/DLQ/restore | Outbox/inbox and local backups | Release approval |
 
 ## Parallel Team Allocation
 
-| Engineer | July 20-26 | July 27-August 9 | August 10-23 |
+| Engineer | July 25-28 | July 29-August 6 | August 7-13 |
 | --- | --- | --- | --- |
-| Engineer 1 | Compose, Caddy, staging, observability, contract CI | RabbitMQ, monitoring, backup automation | Recovery drills, deployment hardening |
+| Engineer 1 | Compose, observability, contract CI | RabbitMQ, monitoring, backup automation | Recovery drills and local-demo hardening |
 | Engineer 2 | Auth, JWKS, refresh, service tokens, bootstrap admin | Commerce cart/order/simulator/outbox | Reconciliation, transaction audit |
-| Engineer 3 | Catalog schema, public store, quote, theme validation | Library ownership, inbox, entitlement APIs | Build metadata, download authorization, moderation |
-| Engineer 4 | Web shell, auth/store pages, generated client | Cart/checkout/order status/library UX | Creator/admin UI, AI proposal preview, E2E coverage |
+| Engineer 3 | Catalog schema, public store, quote, theme validation | Library ownership, inbox, entitlement APIs | Build metadata, download authorization, moderation, AI cache |
+| Engineer 4 | Web shell, auth/store pages, generated client | Cart/checkout/order status/library UX | Creator/admin UI, AI proposal/recommendation UI, E2E coverage |
 
 ## Feature-Freeze Rule
 
-After August 24, the team may not add a route, event type, database table, payment state, role, or external provider. Changes are restricted to release-blocking defects, security fixes, test corrections, documentation/runbook fixes, and deployment hardening.
+After August 14, the team may not add a route, event type, database table, payment state, role, or external provider. Changes are restricted to release-blocking defects, security fixes, test corrections, documentation/runbook fixes, and local-demo hardening.
