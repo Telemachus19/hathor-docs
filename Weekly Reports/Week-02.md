@@ -1,5 +1,5 @@
 ---
-title: Hathor - Weekly Report - Week 1
+title: Hathor - Weekly Report - Week 2
 geometry: margin=1in
 fontfamily: libertinus
 fontsize: 10pt
