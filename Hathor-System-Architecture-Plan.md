@@ -1,6 +1,6 @@
 # Hathor: Distributed Microservices Architecture & Execution Blueprint
 
-> **Status:** Approved architecture baseline for the August 30, 2026 vertical slice.
+> **Status:** Approved architecture baseline for the August 15, 2026 vertical slice.
 
 > **Canonical detail:** This master blueprint summarizes the approved design. Binding contracts and operational detail live in `docs/adr/`, `docs/contracts/`, `docs/security/`, `docs/reliability/`, `docs/architecture/`, and `docs/delivery/`.
 
@@ -15,7 +15,7 @@ The August release is a secure distributed vertical slice. A gamer can register,
 1. Gateway, auth, catalog, commerce, and library microservices.
 2. Four independent PostgreSQL instances locally, one owned by each domain service.
 3. RS256 user sessions, rotating refresh tokens, role enforcement, and internal service tokens.
-4. Seeded public catalog, constrained theme designer, optional AI theme proposal capability, and creator draft workflow.
+4. Seeded public catalog, constrained theme designer, local AI theme proposal capability, cached non-personalized recommendations, and creator draft workflow.
 5. Cart, server-authoritative checkout quote, three branded payment simulator flows, payment audit, transactional outbox, RabbitMQ, and idempotent library fulfillment.
 6. Private Cloudflare R2 seeded ZIP artifact, short-lived exact-object access, and SHA-256 verification.
 7. Admin bootstrap, role workflow, moderation, audit records, testing, recovery runbooks, and local Docker Compose demonstration.
@@ -25,7 +25,7 @@ The August release is a secure distributed vertical slice. A gamer can register,
 1. Live Fawry, Vodafone Cash, and InstaPay settlement.
 2. Creator build uploads, malware scanning, chunking, delta patching, and a desktop launcher.
 3. Arbitrary CSS/HTML, custom JavaScript, or untrusted embeds in store themes.
-4. AI buyer assistants, recommendations, semantic search, and behavioral profiling.
+4. AI buyer assistants, behavioral personalization, semantic search, and behavioral profiling.
 5. High availability, multi-region deployment, sharding, and production-scale CDN controls.
 
 ## 2. Architecture Principles
@@ -269,9 +269,9 @@ R2 bucket listing, public ACLs, wildcard prefixes, public object URLs, and brows
 
 The first operational target is a clean local Docker Compose environment with web, gateway, four domain services, four PostgreSQL instances, RabbitMQ, Redis, and Memcached. Only web/gateway publish host ports by default. The environment must support reproducible migrations, seed data, health/readiness checks, contract validation, integration tests, and end-to-end failure tests.
 
-### Public Staging
+### Future Deployment (Deferred)
 
-When hosting becomes available in mid-August, the same images and topology deploy to one hardened VPS:
+VPS/public deployment is outside the August release because hosting is not budgeted. When deployment is reconsidered after release, the same images and topology should deploy to one hardened VPS:
 
 - Caddy terminates TLS; only ports 80/443 and restricted key-only SSH are reachable.
 - Internal services, broker, cache, PostgreSQL, and RabbitMQ management have no public bindings.
@@ -316,13 +316,13 @@ Every HTTP handler validates request data at runtime. Every RabbitMQ publisher a
 
 | Milestone | Dates | Exit condition |
 | --- | --- | --- |
-| M0: Architecture freeze | July 15-19 | Contracts, security, data, reliability, and scope approved |
-| M1: Local platform/auth | July 20-26 | Clean Compose supports register, login, protected `/me`, and catalog browse |
-| M2: Catalog/cart/order | July 27-August 2 | Gamer creates exactly one valid payment-pending order from a quote |
-| M3: Payment/entitlement | August 3-9 | Verified simulator payment grants exactly one license after retry/restart |
-| M4: R2/creator/admin/VPS | August 10-16 | Owned seeded build access and creator/admin controls work; VPS is provisioned if available |
-| M5: Integration/recovery | August 17-23 | E2E, fault, reconciliation, DLQ, and restore paths pass locally and staging when available |
-| M6: Release hardening | August 24-30 | Feature freeze, release candidate, rehearsal, and final sign-off complete |
+| M0: Architecture freeze | July 23-24 | Contracts, security, data, reliability, scope, and AI constraints approved |
+| M1: Local platform/auth | July 25-28 | Clean Compose supports register, login, protected `/me`, and catalog browse |
+| M2: Catalog/cart/order | July 29-August 1 | Gamer creates exactly one valid payment-pending order from a quote |
+| M3: Payment/entitlement | August 2-6 | Verified simulator payment grants exactly one license after retry/restart |
+| M4: R2/creator/admin/AI | August 7-10 | Owned seeded build access, creator/admin controls, AI proposals, and cached recommendations work locally |
+| M5: Integration/recovery | August 11-13 | E2E, fault, reconciliation, DLQ, and restore paths pass locally |
+| M6: Release hardening | August 14-15 | Feature freeze, release candidate, rehearsal, and final sign-off complete |
 
 The detailed issue order, owners, dependencies, acceptance criteria, labels, and board views are maintained in `GitHub_Projects_Fullstack_Plan.md`.
 
