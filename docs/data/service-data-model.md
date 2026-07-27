@@ -6,7 +6,7 @@ Each service owns its schema and migrations. All service databases use UTC `TIME
 
 ## Auth Service
 
-`users` stores email, normalized email, password hash, display name, account state, authorization version, and timestamps. Public registration always assigns `gamer`.
+`users` stores email, normalized email, password hash, display name, account state, authorization version, disabled status, and timestamps. Public registration always assigns `gamer`.
 
 `refresh_token_families` and `refresh_tokens` store only token hashes, family linkage, expiry, revocation state, reuse detection data, and timestamps. A refresh-token reuse revokes the entire family.
 

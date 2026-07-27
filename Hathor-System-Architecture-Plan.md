@@ -133,7 +133,7 @@ Each service runs one PostgreSQL container and uses a unique non-superuser role.
 
 ### Auth Database
 
-- `users`: normalized email, Argon2 hash, roles, account state, authorization version.
+- `users`: normalized email, Argon2 hash, roles, account state, authorization version, disabled.
 - `refresh_token_families` and `refresh_tokens`: hashes, expiry, rotation, revocation, reuse detection.
 - `role_change_audit`: actor, target, change, authorization versions, correlation ID, timestamp.
 
