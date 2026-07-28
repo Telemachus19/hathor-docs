@@ -4,33 +4,20 @@
 
 AI capabilities in Hathor span three distinct architectural paradigms: **Direct LLM Integration**, **Retrieval-Augmented Generation (RAG)**, and **Agentic AI Workflows**. All AI capabilities operate as isolated provider adapters or worker services. They do not hold direct database-write permissions, payment authority, or auto-publication capability.
 
-```text
-                                  +---------------------------------------+
-                                  |            Client / Web               |
-                                  +---------------------------------------+
-                                                      |
-                                          API Gateway (/api/v1/*)
-                                                      |
-         +--------------------+-----------------------+-----------------------+
-         |                    |                       |                       |
-+------------------+ +------------------+   +-------------------+   +--------------------+
-|   Auth Service   | | Commerce Service |   |  Library Service  |   |  Catalog Service   |
-+------------------+ +------------------+   +-------------------+   +--------------------+
-                                                      |                       |
-                                             (Read-only Metadata)      +--------------+
-                                                      |                | AI Adapter   |
-                                                      v                +--------------+
-                                            +-------------------+             |
-                                            |  AI Domain Worker | <-----------+
-                                            | (RAG & Agent Engine)
-                                            +-------------------+
-                                                      |
-                                        +-------------+-------------+
-                                        |                           |
-                                +---------------+           +---------------+
-                                |  LLM Provider |           |  Vector Store |
-                                | (OpenAI/Anth) |           |  (pgvector)   |
-                                +---------------+           +---------------+
+```mermaid
+graph TD
+    Client["Client / Web"] --> Gateway["API Gateway (/api/v1/*)"]
+    Gateway --> Auth["Auth Service"]
+    Gateway --> Commerce["Commerce Service"]
+    Gateway --> Library["Library Service"]
+    Gateway --> Catalog["Catalog Service"]
+    
+    Catalog --> Adapter["AI Provider Adapter"]
+    Adapter --> Worker["AI Domain Worker (RAG & Agent Engine)"]
+    Library -. "Read-only Metadata" .-> Worker
+    
+    Worker --> LLM["LLM Provider (OpenAI / Anthropic)"]
+    Worker --> Vector["Vector Store (PostgreSQL pgvector)"]
 ```
 
 ---
@@ -68,8 +55,13 @@ RAG grounds LLM responses in Hathor's domain data using vector embeddings stored
 
 Agentic AI operates as multi-step autonomous decision loops using registered internal tool registries. All agent actions require **Human-in-the-Loop (HITL)** approval before mutating application state.
 
-```text
-[Goal Request] -> [Agent Loop] -> [Tool Call: Metadata/Palette/Copy] -> [Validate Schema] -> [HITL Approval Card] -> [State Change]
+```mermaid
+flowchart LR
+    Goal["Goal Request"] --> Loop["Agent Execution Loop"]
+    Loop --> Tool["Tool Calls (Metadata / Palette / Copy)"]
+    Tool --> Validate["Validate JSON Schema"]
+    Validate --> HITL["HITL Approval Card"]
+    HITL --> State["State Change (Draft / Review)"]
 ```
 
 ### Agent A: Auto-Storefront Builder Agent (Creator Assistant)
