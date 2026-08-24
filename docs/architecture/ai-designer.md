@@ -38,20 +38,15 @@ Direct LLM calls handle single-turn prompt-to-structure generation without exter
 
 ## 2. Retrieval-Augmented Generation (RAG Integration)
 
-RAG grounds LLM responses in Hathor's domain data using vector embeddings stored in PostgreSQL (`pgvector`).
+> 📘 **Dedicated Architecture Document**: See [`ai-rag-assistant.md`](./ai-rag-assistant.md) for the complete modular RAG pipeline, library awareness, vector retrieval, and fallback specifications.
 
-### Capabilities:
-1. **Semantic Storefront Search & Discovery** (`catalog-service`):
-   - **Index**: Game titles, long descriptions, tags, and system requirements embedded via `text-embedding-3-small` into `catalog_db.game_embeddings`.
-   - **Retrieval Flow**: Gamer inputs natural query (e.g. *"tactical turn-based RPG with dark space atmosphere"*) → API embeds query → Cosine similarity vector search retrieves Top-K games → LLM ranks and attaches short explainable reasons (*"Selected because of tactical combat tags and sci-fi theme"*).
-   - **Fallback**: Search defaults to standard PostgreSQL text/tag ILIKE search if vector indexing or LLM retrieval times out.
-2. **Creator Guidelines & Store Policy Assistant** (`support-service`):
-   - **Index**: Official Hathor creator documentation, image size limits, fee structures, and MENA payment payout rules.
-   - **Retrieval Flow**: Creator asks *"What are the header banner dimensions and Fawry payout rules for Egypt?"* → System retrieves relevant policy chunks → LLM returns verified answers complete with markdown doc citations.
+RAG grounds LLM responses in Hathor's domain data using vector embeddings stored in PostgreSQL (`catalog_db.game_embeddings`).
 
 ---
 
 ## 3. Agentic AI Workflows (Tool-Calling Autonomous Agents)
+
+> 📘 **Dedicated Architecture Document**: See [`ai-agentic-designer.md`](./ai-agentic-designer.md) for the complete 6-node autonomous self-correction loop, multi-provider hot-swapping, AST normalization, and HITL specifications.
 
 Agentic AI operates as multi-step autonomous decision loops using registered internal tool registries. All agent actions require **Human-in-the-Loop (HITL)** approval before mutating application state.
 

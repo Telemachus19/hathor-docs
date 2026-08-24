@@ -17,7 +17,9 @@ This directory is the implementation source of truth for Hathor's August 15, 202
 | `security/security-architecture.md` | Authentication, authorization, payment, browser, and storage security |
 | `reliability/payment-entitlement.md` | Order state machine, outbox/inbox, RabbitMQ, reconciliation, and recovery |
 | `reliability/payment-entitlement-sequence.md` | End-to-end purchase sequence and failure behavior |
-| `architecture/ai-designer.md` | Safe AI integration for the Store Page Designer |
+| `architecture/ai-rag-assistant.md` | RAG & Chat Discovery Assistant with vector embeddings & library awareness |
+| `architecture/ai-agentic-designer.md` | Agentic AI Storefront Theme Designer with self-correction & HITL loop |
+| `architecture/ai-designer.md` | AI integration overview and boundary rules |
 | `delivery/implementation-roadmap.md` | Team allocation, August 15 schedule, scope, and release gates |
 | `delivery/architecture-freeze-checklist.md` | Approved freeze decisions and contract-approval gate |
 | `delivery/issue-dependencies.md` | Critical-path dependency graph and team allocation |
